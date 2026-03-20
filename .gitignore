@@ -5,12 +5,13 @@ build/
 xcuserdata/
 *.xcuserstate
 
-# macOS
+# macOS junk
 .DS_Store
+._*
 
 # Secrets
 Config.swift
-*.plist
-
+App/Config.swift
+Config/
 # Swift Package Manager
 .build/

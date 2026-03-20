@@ -5,24 +5,61 @@
 //  Created by John Hanna on 3/8/26.
 //
 import SwiftUI
+import UIKit
+import YouTubeiOSPlayerHelper
 
 struct VideoPlayerScreen: View {
 
-    let videoID: String
-    let title: String
+    var videoID: String
+    var title: String
 
     var body: some View {
 
-        VStack {
+        ScrollView {
 
-            YouTubePlayer(videoID: videoID)
-                .frame(height: 220)
+            VStack(alignment: .leading, spacing: 16) {
 
-            Text(title)
-                .font(.title3)
-                .padding()
+                YouTubePlayerView(videoID: videoID)
+                    .frame(height: 220)
+                    .cornerRadius(12)
 
-            Spacer()
+                Text(title)
+                    .font(.title3)
+                    .fontWeight(.semibold)
+
+                Button("Watch on YouTube") {
+                    openYouTube()
+                }
+                .buttonStyle(.borderedProminent)
+
+            }
+            .padding()
         }
+        .navigationTitle("Sermon")
+    }
+
+    func openYouTube() {
+
+        if let url = URL(string: "https://www.youtube.com/watch?v=\(videoID)") {
+            UIApplication.shared.open(url)
+        }
+
+    }
+}
+
+
+struct YouTubePlayerView: UIViewRepresentable {
+
+    var videoID: String
+
+    func makeUIView(context: Context) -> YTPlayerView {
+        let playerView = YTPlayerView()
+        playerView.load(withVideoId: videoID)
+        return playerView
+    }
+
+    func updateUIView(_ uiView: YTPlayerView, context: Context) {
+        // Reload video if needed
+        uiView.load(withVideoId: videoID)
     }
 }

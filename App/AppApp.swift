@@ -1,17 +1,25 @@
-//
-//  AppApp.swift
-//  App
-//
-//  Created by John Hanna on 3/6/26.
-//
-
 import SwiftUI
 
 @main
 struct AppApp: App {
+
+    @AppStorage("appearanceMode") var appearanceMode = 0
+
+    var selectedColorScheme: ColorScheme? {
+        switch appearanceMode {
+        case 1:
+            return .light
+        case 2:
+            return .dark
+        default:
+            return nil
+        }
+    }
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AppViewController()
+                .preferredColorScheme(selectedColorScheme)
         }
     }
 }
