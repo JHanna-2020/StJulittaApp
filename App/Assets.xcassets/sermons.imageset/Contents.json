@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "sermons.png",
+      "filename" : "image2.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
@@ -12,7 +12,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "sermons_dark.png",
+      "filename" : "image3.png",
       "idiom" : "universal",
       "scale" : "1x"
     },

@@ -1,7 +1,7 @@
 {
   "images" : [
     {
-      "filename" : "cal.png",
+      "filename" : "settings.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
@@ -12,7 +12,7 @@
           "value" : "dark"
         }
       ],
-      "filename" : "cal_dark.png",
+      "filename" : "settingw.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
