@@ -22,6 +22,7 @@ struct VideoPlayerScreen: View {
                 YouTubePlayerView(videoID: videoID)
                     .frame(height: 220)
                     .cornerRadius(12)
+                Text("Video here")
 
                 Text(title)
                     .font(.title3)

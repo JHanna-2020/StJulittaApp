@@ -12,7 +12,7 @@
 //  Created by John Hanna on 3/7/26.
 //
 import SwiftUI
-struct SundnaySermons: View {
+struct SundaySermons: View {
     @StateObject var api = YouTubeAPIService(playlistId: Config.sundaysermonspl)
     @AppStorage("appFontSize") var appFontSize: Double = 16
     var body: some View{

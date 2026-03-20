@@ -153,7 +153,7 @@ struct ContentView: View {
                           
                             NavigationLink{
                                 VStack{
-                                    Text("Coming Soon")
+                                   Hymns()
                                    
                                 }
                             }

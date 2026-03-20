@@ -15,7 +15,7 @@ struct Donation: View {
 
                
 
-                Text("Give easily using Zelle or by mailing a check. Tap the email below to copy it.")
+                Text("Give easily using Zelle or by mailing a check.")
                     .font(.system(size: appFontSize))
                     .multilineTextAlignment(.center)
                     .foregroundColor(.secondary)
