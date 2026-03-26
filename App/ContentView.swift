@@ -92,6 +92,26 @@ struct ContentView: View {
                             ],
                             spacing: 30
                         ) {
+                            NavigationLink{
+                                VStack{
+                                    NewComers()
+                                   
+                                }
+                            }
+                            label:{
+                                VStack{
+                                    Image("nc")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width:100, height:100)
+                                    Text("New Members")
+                                        .font(.system(size: appFontSize))
+                                        .foregroundColor(.primary)
+                                        .padding(6)
+                                        .background(Color(.systemGray5))
+                                        .cornerRadius(8)
+                                }
+                            }
                             
                             
                             NavigationLink{
@@ -109,6 +129,9 @@ struct ContentView: View {
                                     Text("Church Calendar")
                                         .font(.system(size: appFontSize))
                                         .foregroundColor(.primary)
+                                        .padding(6)
+                                        .background(Color(.systemGray5))
+                                        .cornerRadius(8)
                                 }
                             }
                             NavigationLink{
@@ -123,31 +146,17 @@ struct ContentView: View {
                                         .resizable()
                                         .scaledToFit()
                                         .frame(width:100, height:100)
-                                    Text("Sermons")
+                                    Text("Recordings")
                                         .font(.system(size: appFontSize))
                                         .foregroundColor(.primary)
+                                        .padding(6)
+                                        .background(Color(.systemGray5))
+                                        .cornerRadius(8)
                                 }
                             }
                             
                             
-                            NavigationLink{
-                                VStack{
-                                    Donation()
-                                }
-                                
-                            }
-                            label:{
-                                VStack{
-                                    Image("img")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width:100, height:100)
-                                    
-                                    Text("Donation")
-                                        .font(.system(size: appFontSize))
-                                        .foregroundColor(.primary)
-                                }
-                            }
+                            
                             
                         
                           
@@ -166,9 +175,135 @@ struct ContentView: View {
                                     Text("Hymns Corner")
                                         .font(.system(size: appFontSize))
                                         .foregroundColor(.primary)
+                                        .padding(6)
+                                        .background(Color(.systemGray5))
+                                        .cornerRadius(8)
                                 }
                             }
                             
+                            NavigationLink{
+                                VStack{
+                                   SundaySchool()
+                                   
+                                }
+                            }
+                            label:{
+                                VStack{
+                                    Image("sds")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width:100, height:100)
+                                    Text("Sunday School")
+                                        .font(.system(size: appFontSize))
+                                        .foregroundColor(.primary)
+                                        .padding(6)
+                                        .background(Color(.systemGray5))
+                                        .cornerRadius(8)
+                                }
+                            }
+                            NavigationLink{
+                                VStack{
+                                   SignalGroup()
+                                   
+                                }
+                            }
+                            label:{
+                                VStack{
+                                    Image("com")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width:100, height:100)
+                                    Text("Signal Group")
+                                        .font(.system(size: appFontSize))
+                                        .foregroundColor(.primary)
+                                        .padding(6)
+                                        .background(Color(.systemGray5))
+                                        .cornerRadius(8)
+                                }
+                            }
+                            NavigationLink{
+                                VStack{
+                                   About()
+                                   
+                                }
+                            }
+                            label:{
+                                VStack{
+                                    Image("coc")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width:100, height:100)
+                                    Text("About")
+                                        .font(.system(size: appFontSize))
+                                        .foregroundColor(.primary)
+                                        .padding(6)
+                                        .background(Color(.systemGray5))
+                                        .cornerRadius(8)
+                                }
+                            }
+                            NavigationLink{
+                                VStack{
+                                    Donation()
+                                }
+                                
+                            }
+                            label:{
+                                VStack{
+                                    Image("img")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width:100, height:100)
+                                    
+                                    Text("Donation")
+                                        .font(.system(size: appFontSize))
+                                        .foregroundColor(.primary)
+                                        .padding(6)
+                                        .background(Color(.systemGray5))
+                                        .cornerRadius(8)
+                                }
+                            }
+                            NavigationLink{
+                                VStack{
+                                    Resources()
+                                }
+                                
+                            }
+                            label:{
+                                VStack{
+                                    Image("apps")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width:100, height:100)
+                                    
+                                    Text("Resources")
+                                        .font(.system(size: appFontSize))
+                                        .foregroundColor(.primary)
+                                        .padding(6)
+                                        .background(Color(.systemGray5))
+                                        .cornerRadius(8)
+                                }
+                            }
+                            NavigationLink{
+                                VStack{
+                                    AdminNotificationView()
+                                }
+                                
+                            }
+                            label:{
+                                VStack{
+                                    Image("apps")
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width:100, height:100)
+                                    
+                                    Text("Notifications")
+                                        .font(.system(size: appFontSize))
+                                        .foregroundColor(.primary)
+                                        .padding(6)
+                                        .background(Color(.systemGray5))
+                                        .cornerRadius(8)
+                                }
+                            }
                             NavigationLink{AppSettingsView()}
                             label:{
                                 VStack{
@@ -179,6 +314,9 @@ struct ContentView: View {
                                     Text("App Settings")
                                         .font(.system(size: appFontSize))
                                         .foregroundColor(.primary)
+                                        .padding(6)
+                                        .background(Color(.systemGray5))
+                                        .cornerRadius(8)
                                 }
                             }
                             

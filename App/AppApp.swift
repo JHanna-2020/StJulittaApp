@@ -1,7 +1,11 @@
 import SwiftUI
+import FirebaseCore
 
 @main
 struct AppApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+
+
 
     @AppStorage("appearanceMode") var appearanceMode = 0
 

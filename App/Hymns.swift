@@ -23,34 +23,40 @@ struct DriveFolderView: View {
     @StateObject private var service = DriveService()
 
     var body: some View {
-        List(service.files) { file in
-            if file.isFolder {
-                NavigationLink(destination:
-                    DriveFolderView(folderID: file.id, title: file.name, appFontSize: appFontSize)
-                ) {
-                    RowView(file: file, appFontSize: appFontSize)
-                }
-            } else {
-                if file.mimeType.contains("audio") {
-                    NavigationLink(destination: AudioPlayerView(file: file, appFontSize: appFontSize)) {
-                        RowView(file: file, appFontSize: appFontSize)
-                    }
-                } else if file.mimeType == "application/pdf" {
-                    NavigationLink(destination: PDFViewer(file: file)) {
-                        RowView(file: file, appFontSize: appFontSize)
-                    }
-                } else {
-                    Button {
-                        let url = "https://drive.google.com/file/d/\(file.id)/view"
-                        if let link = URL(string: url) {
-                            UIApplication.shared.open(link)
+        ScrollView {
+            LazyVStack(spacing: 12) {
+                ForEach(service.files) { file in
+                    if file.isFolder {
+                        NavigationLink(destination:
+                            DriveFolderView(folderID: file.id, title: file.name, appFontSize: appFontSize)
+                        ) {
+                            RowView(file: file, appFontSize: appFontSize)
                         }
-                    } label: {
-                        RowView(file: file, appFontSize: appFontSize)
+                    } else {
+                        if file.mimeType.contains("audio") {
+                            NavigationLink(destination: AudioPlayerView(file: file, appFontSize: appFontSize)) {
+                                RowView(file: file, appFontSize: appFontSize)
+                            }
+                        } else if file.mimeType == "application/pdf" {
+                            NavigationLink(destination: PDFViewer(file: file)) {
+                                RowView(file: file, appFontSize: appFontSize)
+                            }
+                        } else {
+                            Button {
+                                let url = "https://drive.google.com/file/d/\(file.id)/view"
+                                if let link = URL(string: url) {
+                                    UIApplication.shared.open(link)
+                                }
+                            } label: {
+                                RowView(file: file, appFontSize: appFontSize)
+                            }
+                        }
                     }
                 }
             }
+            .padding()
         }
+        .background(Color(.systemGroupedBackground))
         .navigationTitle(title)
         .onAppear {
             service.fetchFiles(folderID: folderID)
@@ -65,28 +71,35 @@ struct RowView: View {
     let appFontSize: Double
 
     var body: some View {
-        HStack(spacing: 12) {
+        HStack(spacing: 16) {
             Image(systemName: iconName)
-                .font(.system(size: appFontSize, weight: .semibold))
-                .foregroundColor(.blue)
+                .font(.system(size: appFontSize + 2, weight: .semibold))
+                .foregroundColor(.white)
+                .frame(width: 36, height: 36)
+                .background(Color.blue)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
 
-            Text(file.name)
-                .font(.system(size: appFontSize))
+            Text(displayName)
+                .font(.system(size: appFontSize, weight: .medium))
+                .foregroundColor(.primary)
 
             Spacer()
-
-            if file.isFolder {
-                Image(systemName: "chevron.right")
-                    .foregroundColor(.gray)
-            }
         }
-        .padding(.vertical, 6)
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: 14)
+                .fill(Color(.secondarySystemBackground))
+        )
     }
 
     private var iconName: String {
         if file.isFolder { return "folder" }
         if file.mimeType.contains("audio") { return "headphones" }
         return "doc"
+    }
+
+    private var displayName: String {
+        (file.name as NSString).deletingPathExtension
     }
 }
 
@@ -111,193 +124,38 @@ struct DriveFile: Decodable, Identifiable {
 class DriveService: ObservableObject {
     @Published var files: [DriveFile] = []
 
-    private let apiKey = Config.driveAPIKey
-
     func fetchFiles(folderID: String) {
-        let query = "https://www.googleapis.com/drive/v3/files?q=%27\(folderID)%27+in+parents+and+trashed=false&fields=files(id,name,mimeType)&key=\(apiKey)"
-        guard let url = URL(string: query) else { return }
+        guard let workerURL = URL(string: "https://api.hannagonjohn.workers.dev") else { return }
 
-        Task {
-            do {
-                let (data, _) = try await URLSession.shared.data(from: url)
-                let result = try JSONDecoder().decode(DriveResponse.self, from: data)
+        var request = URLRequest(url: workerURL)
+        request.httpMethod = "POST"
 
-                await MainActor.run {
-                    self.files = result.files.sorted { $0.name < $1.name }
-                }
-            } catch {
-                // Handle error silently or add user-facing error later
-            }
-        }
-    }
-}
+        let endpoint = "https://www.googleapis.com/drive/v3/files?q=%27\(folderID)%27+in+parents+and+trashed=false&fields=files(id,name,mimeType)"
 
-//# MARK: - Audio Player
+        let body: [String: Any] = [
+            "service": "drive",
+            "endpoint": endpoint
+        ]
 
-struct AudioPlayerView: View {
-    let file: DriveFile
-    let appFontSize: Double
+        request.httpBody = try? JSONSerialization.data(withJSONObject: body)
+        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
 
-    @State private var player: AVPlayer?
-    @State private var isPlaying = false
-    @State private var currentTime: Double = 0
-    @State private var duration: Double = 1
-    @State private var playbackRate: Float = 1.0
-
-    private var streamURL: URL? {
-        URL(string: "https://drive.google.com/uc?export=download&id=\(file.id)")
-    }
-
-    var body: some View {
-        VStack(spacing: 30) {
-            Text(file.name)
-                .font(.system(size: appFontSize, weight: .semibold))
-                .multilineTextAlignment(.center)
-                .padding(.top)
-
-            // Progress Bar
-            VStack {
-                Slider(value: $currentTime, in: 0...duration, onEditingChanged: { editing in
-                    if !editing {
-                        let time = CMTime(seconds: currentTime, preferredTimescale: 600)
-                        player?.seek(to: time)
-                    }
-                })
-
-                HStack {
-                    Text(formatTime(currentTime))
-                    Spacer()
-                    Text(formatTime(duration))
-                }
-                .font(.caption)
-                .foregroundColor(.gray)
-            }
-            .padding(.horizontal)
-
-            // Controls
-            HStack(spacing: 40) {
-                Button {
-                    seek(by: -15)
-                } label: {
-                    Image(systemName: "gobackward.15")
-                        .font(.title2)
-                }
-
-                Button {
-                    togglePlay()
-                } label: {
-                    Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                        .font(.system(size: 50))
-                }
-
-                Button {
-                    seek(by: 15)
-                } label: {
-                    Image(systemName: "goforward.15")
-                        .font(.title2)
-                }
-            }
-
-            // Playback Speed
-            HStack(spacing: 16) {
-                Text("Speed")
-                    .font(.system(size: appFontSize))
-
-                ForEach([0.75, 1.0, 1.25, 1.5, 2.0], id: \.self) { rate in
-                    Button {
-                        setPlaybackRate(rate)
-                    } label: {
-                        Text(String(format: "%.2gx", rate))
-                            .font(.system(size: appFontSize * 0.9))
-                            .padding(.horizontal, 8)
-                            .padding(.vertical, 4)
-                            .background(playbackRate == Float(rate) ? Color.blue.opacity(0.2) : Color.clear)
-                            .cornerRadius(6)
-                    }
-                }
-            }
-
-            Spacer()
-        }
-        .navigationTitle("Now Playing")
-        .onAppear {
-            setupPlayer()
-        }
-        .onDisappear {
-            player?.pause()
-        }
-    }
-
-    private func setupPlayer() {
-        guard let url = streamURL else { return }
-
-        try? AVAudioSession.sharedInstance().setCategory(.playback, mode: .default)
-        try? AVAudioSession.sharedInstance().setActive(true)
-
-        let newPlayer = AVPlayer(url: url)
-        player = newPlayer
-
-        // Get duration properly (async)
-        if let item = newPlayer.currentItem {
-            Task {
+        URLSession.shared.dataTask(with: request) { data, _, _ in
+            guard let data = data else { return }
+            DispatchQueue.main.async {
                 do {
-                    let asset = item.asset
-                    let durationTime = try await asset.load(.duration)
-                    let seconds = CMTimeGetSeconds(durationTime)
-
-                    if seconds.isFinite {
-                        await MainActor.run {
-                            self.duration = seconds
-                        }
-                    }
+                    let decoded = try JSONDecoder().decode(DriveResponse.self, from: data)
+                    self.files = decoded.files.sorted { $0.name < $1.name }
                 } catch {
-                    // ignore
+                    print("Decoding error:", error)
                 }
             }
-        }
-
-        addTimeObserver()
-        newPlayer.play()
-        isPlaying = true
-    }
-
-    private func togglePlay() {
-        guard let player = player else { return }
-        if isPlaying {
-            player.pause()
-        } else {
-            player.rate = playbackRate
-        }
-        isPlaying.toggle()
-    }
-
-    private func setPlaybackRate(_ rate: Double) {
-        playbackRate = Float(rate)
-        player?.rate = isPlaying ? playbackRate : 0
-    }
-
-    private func seek(by seconds: Double) {
-        guard let player = player else { return }
-        let newTime = max(0, min(currentTime + seconds, duration))
-        let time = CMTime(seconds: newTime, preferredTimescale: 600)
-        player.seek(to: time)
-    }
-
-    private func addTimeObserver() {
-        guard let player = player else { return }
-
-        let interval = CMTime(seconds: 1, preferredTimescale: 600)
-        player.addPeriodicTimeObserver(forInterval: interval, queue: .main) { time in
-            currentTime = time.seconds
-        }
-    }
-
-    private func formatTime(_ seconds: Double) -> String {
-        let mins = Int(seconds) / 60
-        let secs = Int(seconds) % 60
-        return String(format: "%d:%02d", mins, secs)
+            return
+        }.resume()
     }
 }
+
+
 
 // MARK: - PDF Viewer
 
